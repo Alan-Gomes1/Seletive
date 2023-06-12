@@ -14,8 +14,17 @@
                 <h3 class="titulo">Nova empresa</h3>
             </div>
 
+            {% if messages %}
+                {% for message in messages %}
+                <br>
+                    <section class="alert {{message.tags}}">
+                        {{message}}
+                    </section>
+                {% endfor %}
+            {% endif %}
+
             <div class="body-box">
-                <form action="" method="" enctype="multipart/form-data">
+                <form action="{% url 'nova_empresa' %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
                     <div class="row">
                         <div class="col-md">
                             <label>Nome:</label>
@@ -46,9 +55,9 @@
                         <div class="col-md">
                             <label>Nicho de mercado:</label>
                             <select class="form-control" name="nicho">
-                                <option value="M">Marketing</option>
-                                <option value="N">Nutrição</option>
-                                <option value="D">Design</option>
+                                {% for nicho in nichos %}
+                                    <option value="{{ nicho.0 }}">{{ nicho.1 }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -57,7 +66,9 @@
                         <div class="col-md">
                             <label>Tecnologias usadas:</label>
                             <select class="form-control" name="tecnologias" multiple>                                
-                                <option value=""></option>
+                                {% for tech in techs %}
+                                    <option value="{{ tech.id }}">{{ tech }}</option>
+                                {% endfor %}
                                 
                             </select>
                         </div>
