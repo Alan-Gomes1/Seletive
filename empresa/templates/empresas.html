@@ -56,7 +56,7 @@
                     {% for empresa in empresas %}
                         <tr {% if forloop.counter|is_par %} class="tabela-linha" {% endif %}>
                             <td>
-                                <a href="{% url 'empresa' empresa.id %}">{{ empresa.nome }}</a>
+                                <a class="link" href="{% url 'empresa' empresa.id %}">{{ empresa.nome }}</a>
                             </td>
                             <td>{{ empresa.endereco }}</td>
                             <td>

@@ -61,5 +61,10 @@ class Vagas(models.Model):
         Tecnologias, related_name='estudar'
     )
 
+    def progresso(self):
+        porcentagem = [((i+1) * 20, j[0]) for i, j in enumerate(self.choices_status)]
+        porcentagem = list(filter(lambda x: x[1] == self.status, porcentagem))[0][0]
+        return porcentagem
+
     def __str__(self):
         return self.titulo

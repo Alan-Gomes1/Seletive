@@ -12,3 +12,8 @@ body{
 .navbar-brand {
     padding: 30px;
 }
+
+.link {
+    font-weight: bold;
+    color: #1a1717;
+}
