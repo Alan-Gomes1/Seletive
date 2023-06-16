@@ -1,8 +1,14 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.messages import constants
 from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms.login import LoginForm
 from .models import Empresa, Tecnologias, Vagas
+
+
+def login_view(request):
+    return render(request, 'login_e_cadastro.html')
 
 
 def nova_empresa(request):
@@ -72,7 +78,31 @@ def empresas(request):
         empresas = empresas.filter(tecnologias=filtro_tecnologias)
 
     if filtro_nome:
-        empresas = empresas.filter(nome__icontens=filtro_nome)
+        empresas = empresas.filter(nome__icontans=filtro_nome)
+
+    if request.method == 'POST':
+        formulario = LoginForm(request.POST)
+
+        if formulario.is_valid():
+            autenticacao = authenticate(
+                nome=formulario.cleaned_data.get('nome', ''),
+                senha=formulario.cleaned_data.get('senha', ''),
+            )
+
+            if autenticacao is not None:
+                messages.add_message(
+                    request, constants.SUCCESS, 'Logado com sucesso!'
+                )
+                login(request, autenticacao)
+            else:
+                messages.add_message(
+                    request, constants.ERROR, 'Dados incorretos'
+                )
+                return redirect('/login')
+        else:
+            messages.add_message(
+                    request, constants.ERROR, 'Usuário ou senha inválido'
+            )
 
     return render(
         request, 'empresas.html',
