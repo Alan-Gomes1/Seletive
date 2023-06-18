@@ -36,3 +36,10 @@ class CadastroForm(forms.ModelForm):
             raise ValidationError({
                 'confirmar_senha': 'senha e confirmar senha não são iguais'
             })
+
+
+class LoginForm(forms.Form):
+    nome = forms.CharField(max_length=100)
+    senha = forms.CharField(
+        widget=forms.PasswordInput(),
+    )

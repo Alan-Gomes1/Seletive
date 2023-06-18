@@ -1,14 +1,48 @@
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib import auth, messages
 from django.contrib.messages import constants
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms.login import LoginForm
+from .forms import CadastroForm
 from .models import Empresa, Tecnologias, Vagas
 
 
 def login_view(request):
     return render(request, 'login_e_cadastro.html')
+
+
+def confirmar_login(request):
+    if not request.POST:
+        raise Http404()
+
+    try:
+        auth.get_user_model().objects.get(username=request.POST.get('nome'))
+    except:
+        return render(request, 'login_e_cadastro.html')
+
+    messages.add_message(
+        request, constants.SUCCESS, 'Logado com sucesso!'
+    )
+    return redirect('/empresas')
+
+
+def confirmar_cadastro(request):
+    if not request.POST:
+        raise Http404()
+
+    formulario = CadastroForm(request.POST,)
+
+    if formulario.is_valid():
+        usuario = formulario.save(commit=False)
+        usuario.set_password(usuario.password)
+        usuario.username = formulario.cleaned_data.get('nome')
+        usuario.save()
+        messages.add_message(
+            request, constants.SUCCESS, 'Cadastro realizado com sucesso!'
+        )
+        return redirect('/login')
+    messages.add_message(request, constants.ERROR, 'Erro ao cadastrar!')
+    return render(request, 'login_e_cadastro.html', {'formulario': formulario})
 
 
 def nova_empresa(request):
@@ -79,30 +113,6 @@ def empresas(request):
 
     if filtro_nome:
         empresas = empresas.filter(nome__icontans=filtro_nome)
-
-    if request.method == 'POST':
-        formulario = LoginForm(request.POST)
-
-        if formulario.is_valid():
-            autenticacao = authenticate(
-                nome=formulario.cleaned_data.get('nome', ''),
-                senha=formulario.cleaned_data.get('senha', ''),
-            )
-
-            if autenticacao is not None:
-                messages.add_message(
-                    request, constants.SUCCESS, 'Logado com sucesso!'
-                )
-                login(request, autenticacao)
-            else:
-                messages.add_message(
-                    request, constants.ERROR, 'Dados incorretos'
-                )
-                return redirect('/login')
-        else:
-            messages.add_message(
-                    request, constants.ERROR, 'Usuário ou senha inválido'
-            )
 
     return render(
         request, 'empresas.html',
