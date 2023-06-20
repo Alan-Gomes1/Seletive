@@ -6,14 +6,16 @@
 {% endblock%}
 {% block 'body' %}
 
-{% if messages %}
-        {% for message in messages %}
-        <br>
-            <section class="alert {{message.tags}}">
-                {{message}}
-            </section>
-        {% endfor %}
-{% endif %}
+    <div class="messages">
+        {% if messages %}
+                {% for message in messages %}
+                <br>
+                    <section class="alert {{message.tags}}">
+                        {{message}}
+                    </section>
+                {% endfor %}
+        {% endif %}
+    </div>
 
     <div class="main">
         <input type="radio" name="slider" id="slider-one">

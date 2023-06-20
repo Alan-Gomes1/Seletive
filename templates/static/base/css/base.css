@@ -17,3 +17,15 @@ body{
     font-weight: bold;
     color: #1a1717;
 }
+
+.logout {
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    position: absolute;
+    right: 50px;
+}
+
+.logout:hover {
+    color: black;
+}

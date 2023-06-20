@@ -12,6 +12,7 @@ urlpatterns = [
         'confirmar_cadastro/', views.ConfirmarCadastro.as_view(),
         name='confirmar_cadastro'
     ),
+    path('sair/', views.Sair.as_view(), name='sair'),
     path('nova_empresa/', views.NovaEmpresa.as_view(), name='nova_empresa'),
     path('empresas/', views.Empresas.as_view(), name='empresas'),
     path(

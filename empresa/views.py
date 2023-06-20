@@ -1,16 +1,17 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import constants
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
+from django.contrib.auth.models import User
 from .forms import CadastroForm, LoginForm
 from .models import Empresa, Tecnologias, Vagas
 
 
-class BaseView(View, LoginRequiredMixin):
-    ...
+class BaseView(LoginRequiredMixin, View):
+    login_url = '/login'
 
 
 class Login(View):
@@ -25,22 +26,19 @@ class ConfirmarLogin(View):
             nome = formulario.cleaned_data.get('nome')
             senha = formulario.cleaned_data.get('senha')
 
-        try:
-            autenticacao = authenticate(
+            usuario = authenticate(
                 request.user, username=nome, password=senha
             )
-            if autenticacao.is_authenticated:
-                login(request, autenticacao)
+            if usuario:
+                login(request, usuario)
                 messages.add_message(
                     request, constants.SUCCESS, 'Logado com sucesso!'
                 )
                 return redirect(reverse('empresas'))
-        except:
-            messages.add_message(
-                request, constants.ERROR, 'Usuário ou senha inválidos'
-            )
-            return render(request, 'login_e_cadastro.html')
 
+        messages.add_message(
+            request, constants.ERROR, 'Usuário ou senha inválidos'
+        )
         return render(request, 'login_e_cadastro.html')
 
 
@@ -50,21 +48,36 @@ class ConfirmarCadastro(View):
 
         if formulario.is_valid():
             nome = formulario.cleaned_data.get('nome')
+            email = formulario.cleaned_data.get('email')
+            senha = formulario.cleaned_data.get('senha')
             formulario.username = nome
-            formulario.save()
-            # senha = formulario.cleaned_data.get('senha')
-            # usuario = formulario.save(commit=False)
-            # usuario.set_password(senha)
+            usuario = User.objects.create_user(
+                nome, email, senha
+            )
+
+            if usuario:
+                usuario.save()
+            else:
+                usuario = User.objects.get(email=formulario.email)
+                usuario.delete()
 
             messages.add_message(
                 request, constants.SUCCESS, 'Cadastro realizado com sucesso!'
             )
             return redirect(reverse('login'))
+        else:
+            for _, errors in formulario.errors.items():
+                for error in errors:
+                    messages.error(
+                        request, f"{error}"
+                    )
+            return render(request, 'login_e_cadastro.html')
 
-        messages.add_message(request, constants.ERROR, 'Erro ao cadastrar!')
-        return render(
-            request, 'login_e_cadastro.html', {'formulario': formulario}
-        )
+
+class Sair(BaseView):
+    def get(self, request):
+        logout(request)
+        return redirect(reverse('login'))
 
 
 class NovaEmpresa(BaseView):
