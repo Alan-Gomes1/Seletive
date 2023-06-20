@@ -3,12 +3,18 @@ from . import views
 
 
 urlpatterns = [
-    path('nova_vaga/', views.nova_vaga, name='nova_vaga'),
-    path('vaga/<int:id>/', views.vaga, name='vaga'),
-    path('nova_tarefa/<int:id_vaga>/', views.nova_tarefa, name='nova_tarefa'),
+    path('nova_vaga/', views.NovaVaga.as_view(), name='nova_vaga'),
+    path('vaga/<int:id>/', views.Vaga.as_view(), name='vaga'),
+    path(
+        'nova_tarefa/<int:id_vaga>/',
+        views.NovaTarefa.as_view(), name='nova_tarefa'
+        ),
     path(
         'realizar_tarefa/<int:id>/',
-        views.realizar_tarefa, name='realizar_tarefa'
+        views.RealizarTarefa.as_view(), name='realizar_tarefa'
     ),
-    path('envia_email/<int:id_vaga>/', views.envia_email, name='envia_email'),
+    path(
+        'envia_email/<int:id_vaga>/',
+        views.EnviarEmail.as_view(), name='envia_email'
+        ),
 ]

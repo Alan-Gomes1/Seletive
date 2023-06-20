@@ -2,18 +2,16 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages import constants
 from django.core.mail import EmailMultiAlternatives
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-
 from empresa.models import Vagas
-
 from .models import Emails, Tarefas
+from empresa.views import BaseView
 
 
-def nova_vaga(request):
-    if request.method == 'POST':
+class NovaVaga(BaseView):
+    def post(self, request):
         titulo = request.POST.get('titulo')
         email = request.POST.get('email')
         tecnologias_domina = request.POST.getlist('tecnologias_domina')
@@ -43,92 +41,90 @@ def nova_vaga(request):
         )
         return redirect(f'/empresa/{empresa}')
 
-    elif request.method == 'GET':
-        raise Http404()
+
+class Vaga(BaseView):
+    def get(self, request, id):
+        vaga = get_object_or_404(Vagas, id=id)
+        tarefas = Tarefas.objects.filter(vaga=vaga)
+        emails = Emails.objects.filter(vaga=vaga)
+        return render(
+            request, 'vaga.html',
+            {'vaga': vaga, 'tarefas': tarefas, 'emails': emails}
+        )
 
 
-def vaga(request, id):
-    vaga = get_object_or_404(Vagas, id=id)
-    tarefas = Tarefas.objects.filter(vaga=vaga).filter(realizada=False)
-    emails = Emails.objects.filter(vaga=vaga)
-    return render(
-        request, 'vaga.html',
-        {'vaga': vaga, 'tarefas': tarefas, 'emails': emails}
-    )
+class NovaTarefa(BaseView):
+    def post(self, request, id_vaga):
+        titulo = request.POST.get('titulo')
+        prioridade = request.POST.get('prioridade')
+        data = request.POST.get('data')
 
+        # TODO: validations
 
-def nova_tarefa(request, id_vaga):
-    titulo = request.POST.get('titulo')
-    prioridade = request.POST.get('prioridade')
-    data = request.POST.get('data')
-
-    # TODO: validações
-    try:
         tarefa = Tarefas(
-            vaga_id=id_vaga,
             titulo=titulo,
             prioridade=prioridade,
-            data=data
+            data=data,
+            vaga_id=id_vaga
         )
         tarefa.save()
-        messages.add_message(request, constants.SUCCESS, 'Tarefa adicionada!')
-        return redirect(f'/vagas/vaga/{id_vaga}')
-    except:
         messages.add_message(
-            request, constants.ERROR, 'Erro do sistema, tente novamente!'
+            request, constants.SUCCESS, 'Tarefa criada com sucesso.'
         )
         return redirect(f'/vagas/vaga/{id_vaga}')
 
 
-def realizar_tarefa(request, id):
-    tarefa = Tarefas.objects.filter(id=id).filter(realizada=False)
+class RealizarTarefa(BaseView):
+    def post(self, request, id):
+        tarefa = Tarefas.objects.filter(id=id).filter(realizada=False)
 
-    if not tarefa.exists():
-        messages.add_message(request, constants.ERROR, 'Tarefa não existe')
-        return redirect('/empresas')
+        if not tarefa.exists():
+            messages.add_message(request, constants.ERROR, 'Tarefa não existe')
+            return redirect('/empresas')
 
-    tarefa = tarefa.first()
-    tarefa.realizada = True
-    tarefa.save()
-    messages.add_message(request, constants.ERROR, 'Tarefa finalizada!')
-    return redirect(f'/vagas/vaga/{tarefa.vaga.id}')
+        tarefa = tarefa.first()
+        tarefa.realizada = True
+        tarefa.save()
+        messages.add_message(request, constants.ERROR, 'Tarefa finalizada!')
+        return redirect(f'/vagas/vaga/{tarefa.vaga.id}')
 
 
-def envia_email(request, id_vaga):
-    vaga = Vagas.objects.get(id=id_vaga)
-    assunto = request.POST.get('assunto')
-    corpo = request.POST.get('corpo')
+class EnviarEmail(BaseView):
+    def get(self, request, id_vaga):
+        vaga = Vagas.objects.get(id=id_vaga)
+        assunto = request.POST.get('assunto')
+        corpo = request.POST.get('corpo')
 
-    conteudo_html = render_to_string(
-        'emails/template_email.html', {'corpo': corpo}
-    )
-    texto = strip_tags(conteudo_html)
-    email = EmailMultiAlternatives(
-        assunto, texto, settings.EMAIL_HOST_USER, [vaga.email, ]
-    )
-    email.attach_alternative(conteudo_html, 'text/html')
-
-    if email.send():
-        mail = Emails(
-            vaga=vaga,
-            assunto=assunto,
-            corpo=corpo,
-            enviado=True
+        conteudo_html = render_to_string(
+            'emails/template_email.html', {'corpo': corpo}
         )
-        mail.save()
-        messages.add_message(
-            request, constants.SUCCESS, 'Email enviado com sucesso.'
+        texto = strip_tags(conteudo_html)
+        email = EmailMultiAlternatives(
+            assunto, texto, settings.EMAIL_HOST_USER, [vaga.email, ]
         )
-    else:
-        mail = Emails(
-            vaga=vaga,
-            assunto=assunto,
-            corpo=corpo,
-            enviado=False
-        )
-        mail.save()
-        messages.add_message(
-            request, constants.ERROR, 'Não conseguimos enviar o seu email!'
-        )
+        email.attach_alternative(conteudo_html, 'text/html')
 
-    return redirect(f'/vagas/vaga/{id_vaga}')
+        if email.send():
+            mail = Emails(
+                vaga=vaga,
+                assunto=assunto,
+                corpo=corpo,
+                enviado=True
+            )
+            mail.save()
+            messages.add_message(
+                request, constants.SUCCESS, 'Email enviado com sucesso.'
+            )
+        else:
+            mail = Emails(
+                vaga=vaga,
+                assunto=assunto,
+                corpo=corpo,
+                enviado=False
+            )
+            mail.save()
+            messages.add_message(
+                request, constants.ERROR, 'Não conseguimos enviar o seu email!'
+            )
+
+        return redirect(f'/vagas/vaga/{id_vaga}')
