@@ -29,3 +29,21 @@ body{
 .logout:hover {
     color: black;
 }
+
+@media (max-width: 768px) {
+    body {
+        width: auto;
+    }
+
+    .header-box {
+        display: flex;
+    }
+
+    .header-box a {
+        text-align: center;
+    }
+
+    .box-vagas {
+        display: inline-block;
+    }
+}
