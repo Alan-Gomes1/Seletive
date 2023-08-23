@@ -29,3 +29,7 @@ class ConfirmarCadastroTeste(TestCase):
 
     def teste_confirmar_cadastro_view_carrega_template_login_e_cadastro(self):
         self.assertTemplateUsed(self.resposta, 'login_e_cadastro.html')
+
+    def teste_confirmar_cadastro_view_nao_aceita_requisicao_get(self):
+        resposta = self.client.get(reverse('confirmar_cadastro'), {})
+        self.assertEqual(resposta.status_code, 405)
