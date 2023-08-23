@@ -40,7 +40,7 @@ das candidaturas e fornece uma visão clara do status de cada processo seletivo.
 Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 - HTML, CSS
-- Python, Django
+- Python, Django, Pytest
 - Git, figma
 
 ## 💻 Projeto
