@@ -44,3 +44,7 @@ class ConfirmarLoginTeste(TestCase):
 
     def teste_confirmar_login_conteudo(self):
         self.assertIn('login', self.resposta.content.decode('utf-8'))
+
+    def teste_confirmar_login_nao_aceita_requisicao_get(self):
+        resposta = self.client.get(reverse('confirmar_login'), {})
+        self.assertEqual(resposta.status_code, 405)
