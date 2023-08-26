@@ -23,6 +23,12 @@ class LoginTeste(TestCase):
 class ConfirmarCadastroTeste(TestCase):
     def setUp(self):
         self.resposta = self.client.post(reverse('confirmar_cadastro'))
+        self.formulario = {
+            'nome': 'teste',
+            'email': 'teste@email.com',
+            'senha': '1234Abcd!',
+            'confirmar_senha': '1234Abcd!'
+        }
 
     def teste_confirmar_cadastro_view_retorna_status_code_200(self):
         self.assertEqual(self.resposta.status_code, 200)
@@ -33,6 +39,15 @@ class ConfirmarCadastroTeste(TestCase):
     def teste_confirmar_cadastro_view_nao_aceita_requisicao_get(self):
         resposta = self.client.get(reverse('confirmar_cadastro'), {})
         self.assertEqual(resposta.status_code, 405)
+
+    def teste_confirmar_cadastro_valido(self):
+        resposta = self.client.post(
+            reverse('confirmar_cadastro'), self.formulario
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(
+            mensagem[0].message, 'Cadastro realizado com sucesso!'
+        )
 
 
 class ConfirmarLoginTeste(TestCase):
