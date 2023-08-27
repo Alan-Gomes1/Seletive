@@ -63,3 +63,10 @@ class ConfirmarLoginTeste(TestCase):
     def teste_confirmar_login_nao_aceita_requisicao_get(self):
         resposta = self.client.get(reverse('confirmar_login'), {})
         self.assertEqual(resposta.status_code, 405)
+
+    def teste_confirmar_login_invalido(self):
+        resposta = self.client.post(
+            reverse('confirmar_login'), data={'nome': 'teste', 'senha': '1234'}
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(mensagem[0].message, 'Usuário ou senha inválidos')
