@@ -70,3 +70,16 @@ class ConfirmarLoginTeste(TestCase):
         )
         mensagem = list(resposta.wsgi_request._messages)
         self.assertEqual(mensagem[0].message, 'Usuário ou senha inválidos')
+
+    def teste_confirmar_login_valido(self):
+        formulario = {
+            'nome': 'teste', 'email': 'teste@email.com',
+            'senha': '1234Abcd!', 'confirmar_senha': '1234Abcd!'
+        }
+        self.client.post(reverse('confirmar_cadastro'), formulario)
+        resposta = self.client.post(
+            reverse('confirmar_login'),
+            data={'nome': 'teste', 'senha': '1234Abcd!'}
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(mensagem[1].message, 'Logado com sucesso!')
