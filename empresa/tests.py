@@ -83,3 +83,9 @@ class ConfirmarLoginTeste(TestCase):
         )
         mensagem = list(resposta.wsgi_request._messages)
         self.assertEqual(mensagem[1].message, 'Logado com sucesso!')
+
+
+class EmpresasTeste(TestCase):
+    def teste_empresas_redireciona_para_login_se_nao_estiver_autenticado(self):
+        resposta = self.client.get(reverse('empresas'), follow=True)
+        self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
