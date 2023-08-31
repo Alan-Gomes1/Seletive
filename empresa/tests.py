@@ -49,6 +49,18 @@ class ConfirmarCadastroTeste(TestCase):
             mensagem[0].message, 'Cadastro realizado com sucesso!'
         )
 
+    def teste_campo_nome_deve_ter_menos_de_100_caracteres(self):
+        nome = 'a' * 101
+        self.formulario['nome'] = nome
+        resposta = self.client.post(
+            reverse('confirmar_cadastro'), self.formulario
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(
+            mensagem[0].message,
+            f'Certifique-se de que o valor tenha no máximo 100 caracteres (ele possui {len(nome)}).'  # noqa: E501
+        )
+
 
 class ConfirmarLoginTeste(TestCase):
     def setUp(self):
