@@ -61,6 +61,16 @@ class ConfirmarCadastroTeste(TestCase):
             f'Certifique-se de que o valor tenha no máximo 100 caracteres (ele possui {len(nome)}).'  # noqa: E501
         )
 
+    def teste_campo_email_deve_ter_um_endereco_email_valido(self):
+        self.formulario['email'] = 'teste@email'
+        resposta = self.client.post(
+            reverse('confirmar_cadastro'), self.formulario
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(
+            mensagem[0].message, 'Informe um endereço de email válido.'
+        )
+
 
 class ConfirmarLoginTeste(TestCase):
     def setUp(self):
