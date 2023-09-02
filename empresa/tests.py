@@ -71,6 +71,17 @@ class ConfirmarCadastroTeste(TestCase):
             mensagem[0].message, 'Informe um endereço de email válido.'
         )
 
+    def teste_campos_senha_e_confirmar_senha_devem_ser_iguais(self):
+        self.formulario['senha'] = '1234Abcd!'
+        self.formulario['confirmar_senha'] = '1234Abcd!1'
+        resposta = self.client.post(
+            reverse('confirmar_cadastro'), self.formulario
+        )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(
+            mensagem[0].message, 'senha e confirmar senha não são iguais'
+        )
+
 
 class ConfirmarLoginTeste(TestCase):
     def setUp(self):
