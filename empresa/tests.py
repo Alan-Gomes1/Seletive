@@ -82,6 +82,14 @@ class ConfirmarCadastroTeste(TestCase):
             mensagem[0].message, 'senha e confirmar senha não são iguais'
         )
 
+    def teste_campo_email_deve_ser_unico(self):
+        for _ in range(2):
+            resposta = self.client.post(
+                reverse('confirmar_cadastro'), self.formulario
+            )
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(mensagem[1].message, 'Email já existe')
+
 
 class ConfirmarLoginTeste(TestCase):
     def setUp(self):
