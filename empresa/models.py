@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -15,6 +16,7 @@ class Empresa(models.Model):
         ('T', 'Tecnologia'),
     )
 
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     logo = models.ImageField(upload_to='logo_empresa', null=True)
     nome = models.CharField(max_length=30)
     email = models.EmailField()
@@ -48,6 +50,7 @@ class Vagas(models.Model):
         ('F', 'Finalizado')
     )
 
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     empresa = models.ForeignKey(Empresa, null=True, on_delete=models.SET_NULL)
     titulo = models.CharField(max_length=30)
     nivel_experiencia = models.CharField(

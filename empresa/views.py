@@ -89,6 +89,7 @@ class NovaEmpresa(BaseView):
         )
 
     def post(self, request):
+        usuario = request.user
         nome = request.POST.get('nome')
         email = request.POST.get('email')
         cidade = request.POST.get('cidade')
@@ -121,6 +122,7 @@ class NovaEmpresa(BaseView):
             return redirect(reverse('nova_empresa'))
 
         empresa = Empresa(
+            usuario=usuario,
             logo=logo,
             nome=nome,
             email=email,
@@ -139,8 +141,7 @@ class NovaEmpresa(BaseView):
 
 class Empresas(BaseView):
     def get(self, request):
-        empresas = Empresa.objects.all()
-        empresas = Empresa.objects.all()
+        empresas = Empresa.objects.filter(usuario=request.user)
         tecnologias = Tecnologias.objects.all()
 
         filtro_tecnologias = request.GET.get('tecnologias')
@@ -160,7 +161,7 @@ class Empresas(BaseView):
 
 class ExcluirEmpresa(BaseView):
     def get(self, request, id):
-        empresa = get_object_or_404(Empresa, id=id)
+        empresa = Empresa.objects.filter(id=id)
         empresa.delete()
         messages.add_message(
             request, constants.SUCCESS, 'Empresa excluida com sucesso'
