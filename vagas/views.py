@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages import constants
 from django.core.mail import EmailMultiAlternatives
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from empresa.models import Vagas
@@ -12,6 +12,7 @@ from empresa.views import BaseView
 
 class NovaVaga(BaseView):
     def post(self, request):
+        usuario = request.user
         titulo = request.POST.get('titulo')
         email = request.POST.get('email')
         tecnologias_domina = request.POST.getlist('tecnologias_domina')
@@ -24,6 +25,7 @@ class NovaVaga(BaseView):
         # TODO: validations
 
         vaga = Vagas(
+            usuario=usuario,
             titulo=titulo,
             email=email,
             nivel_experiencia=experiencia,
@@ -44,7 +46,7 @@ class NovaVaga(BaseView):
 
 class Vaga(BaseView):
     def get(self, request, id):
-        vaga = get_object_or_404(Vagas, id=id)
+        vaga = Vagas.objects.filter(id=id, usuario=request.user)
         tarefas = Tarefas.objects.filter(vaga=vaga)
         emails = Emails.objects.filter(vaga=vaga)
         return render(
