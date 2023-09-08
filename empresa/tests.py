@@ -148,3 +148,8 @@ class EmpresasTeste(TestCase):
         self.client.login(username='teste', password='1234Abcd!')
         resposta = self.client.get(reverse('empresas'))
         self.assertTemplateUsed(resposta, 'empresas.html')
+
+    def teste_empresas_view_nao_aceita_requisicao_post(self):
+        self.client.login(username='teste', password='1234Abcd!')
+        resposta = self.client.post(reverse('empresas'))
+        self.assertEqual(resposta.status_code, 405)
