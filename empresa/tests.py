@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from .models import Empresa
+
 
 class LoginTeste(TestCase):
     def setUp(self):
@@ -134,13 +136,14 @@ class EmpresasTeste(TestCase):
             username='teste',
             password='1234Abcd!'
         )
+        self.client.login(username='teste', password='1234Abcd!')
 
     def teste_empresas_redireciona_para_login_se_nao_estiver_autenticado(self):
+        self.client.logout()
         resposta = self.client.get(reverse('empresas'), follow=True)
         self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
 
     def teste_empresas_view_retorna_status_code_200(self):
-        self.client.login(username='teste', password='1234Abcd!')
         resposta = self.client.get(reverse('empresas'))
         self.assertEqual(resposta.status_code, 200)
 
