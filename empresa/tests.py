@@ -154,3 +154,11 @@ class EmpresasTeste(TestCase):
     def teste_empresas_view_nao_aceita_requisicao_post(self):
         resposta = self.client.post(reverse('empresas'))
         self.assertEqual(resposta.status_code, 405)
+
+    def teste_quantidade_empresas_listadas(self):
+        for numero in range(1, 4):
+            Empresa.objects.create(usuario=self.user, nome=f'Empresa {numero}')
+
+        response = self.client.get(reverse('empresas'))
+        empresas_listadas = response.context['empresas']
+        self.assertEqual(len(empresas_listadas), 3)
