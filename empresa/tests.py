@@ -162,3 +162,19 @@ class EmpresasTeste(TestCase):
         response = self.client.get(reverse('empresas'))
         empresas_listadas = response.context['empresas']
         self.assertEqual(len(empresas_listadas), 3)
+
+
+class ExcluirEmpresaTeste(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='teste',
+            password='1234Abcd!'
+        )
+        self.client.login(username='teste', password='1234Abcd!')
+
+    def teste_excluir_empresa_redireciona_se_nao_estiver_autenticado(self):
+        self.client.logout()
+        resposta = self.client.get(
+            reverse('excluir_empresa', args=[1]), follow=True
+        )
+        self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
