@@ -178,3 +178,9 @@ class ExcluirEmpresaTeste(TestCase):
             reverse('excluir_empresa', args=[1]), follow=True
         )
         self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
+
+    def teste_excluir_empresa_view_retorna_status_code_200(self):
+        resposta = self.client.get(
+            reverse('excluir_empresa', args=[0]), follow=True
+        )
+        self.assertEqual(resposta.status_code, 200)
