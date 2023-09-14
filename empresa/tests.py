@@ -184,3 +184,9 @@ class ExcluirEmpresaTeste(TestCase):
             reverse('excluir_empresa', args=[0]), follow=True
         )
         self.assertEqual(resposta.status_code, 200)
+
+    def teste_excluir_empresa_com_sucesso(self):
+        Empresa.objects.create(usuario=self.user, nome='Empresa excluida')
+        resposta = self.client.get(reverse('excluir_empresa', args=[0]))
+        mensagem = list(resposta.wsgi_request._messages)
+        self.assertEqual(mensagem[0].message, 'Empresa excluida com sucesso')
