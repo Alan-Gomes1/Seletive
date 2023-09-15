@@ -190,3 +190,7 @@ class ExcluirEmpresaTeste(TestCase):
         resposta = self.client.get(reverse('excluir_empresa', args=[0]))
         mensagem = list(resposta.wsgi_request._messages)
         self.assertEqual(mensagem[0].message, 'Empresa excluida com sucesso')
+
+    def teste_excluir_empresa_view_nao_aceita_requisicao_post(self):
+        resposta = self.client.post(reverse('excluir_empresa', args=[1]))
+        self.assertEqual(resposta.status_code, 405)
