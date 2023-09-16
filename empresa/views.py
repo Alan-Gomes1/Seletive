@@ -162,10 +162,15 @@ class Empresas(BaseView):
 class ExcluirEmpresa(BaseView):
     def get(self, request, id):
         empresa = Empresa.objects.filter(id=id)
-        empresa.delete()
-        messages.add_message(
-            request, constants.SUCCESS, 'Empresa excluida com sucesso'
-        )
+        if empresa:
+            empresa.delete()
+            messages.add_message(
+                request, constants.SUCCESS, 'Empresa excluida com sucesso'
+            )
+        else:
+            messages.add_message(
+                request, constants.ERROR, 'Empresa não encontrada'
+            )
         return redirect(reverse('empresas'))
 
 
