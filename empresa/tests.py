@@ -199,3 +199,7 @@ class ExcluirEmpresaTeste(TestCase):
         resposta = self.client.get(reverse('excluir_empresa', args=[1]))
         mensagem = list(resposta.wsgi_request._messages)
         self.assertEqual(mensagem[0].message, 'Empresa não encontrada')
+
+    def teste_excluir_empresa_que_nao_existe_retorna_para_empresas(self):
+        resposta = self.client.get(reverse('excluir_empresa', args=[1]))
+        self.assertRedirects(resposta, reverse('empresas'))
