@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Empresa
+from .models import Empresa, Tecnologias
 
 
 class LoginTeste(TestCase):
@@ -203,3 +203,24 @@ class ExcluirEmpresaTeste(TestCase):
     def teste_excluir_empresa_que_nao_existe_retorna_para_empresas(self):
         resposta = self.client.get(reverse('excluir_empresa', args=[1]))
         self.assertRedirects(resposta, reverse('empresas'))
+
+
+class EmpresaTeste(TestCase):
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            username='teste',
+            password='1234Abcd!'
+        )
+        self.client.login(username='teste', password='1234Abcd!')
+        self.tecnologia = Tecnologias.objects.create(
+            tecnologia='Python'
+        )
+        self.empresa = Empresa.objects.create(
+            usuario=self.user,
+            nome='Empresa',
+        )
+
+    def teste_empresa_redireciona_para_login_se_nao_estiver_autenticado(self):
+        self.client.logout()
+        resposta = self.client.get(reverse('empresa', args=[1]), follow=True)
+        self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
