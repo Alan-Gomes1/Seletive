@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Empresa, Tecnologias
+from .models import Empresa, Tecnologias, Vagas
 
 
 class LoginTeste(TestCase):
@@ -224,3 +224,7 @@ class EmpresaTeste(TestCase):
         self.client.logout()
         resposta = self.client.get(reverse('empresa', args=[1]), follow=True)
         self.assertTemplateUsed(resposta, 'login_e_cadastro.html')
+
+    def teste_empresa_retorna_404_se_nao_existir(self):
+        resposta = self.client.get(reverse('empresa', args=[0]), follow=True)
+        self.assertEqual(resposta.status_code, 404)
