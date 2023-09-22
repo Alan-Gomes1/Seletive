@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -215,9 +216,20 @@ class EmpresaTeste(TestCase):
         self.tecnologia = Tecnologias.objects.create(
             tecnologia='Python'
         )
+
+        # Crie um arquivo de imagem de teste
+        self.image = SimpleUploadedFile(
+            "test_image.jpg", b"file_content", content_type="image/jpeg"
+        )
         self.empresa = Empresa.objects.create(
+            nome='Minha Empresa',
+            logo=self.image,
             usuario=self.user,
-            nome='Empresa',
+            email='empresa@teste.com',
+            cidade='Minha Cidade',
+            endereco='Rua da Empresa',
+            caracteristica_empresa='Descrição da Empresa',
+            nicho_mercado='T',
         )
 
     def teste_empresa_redireciona_para_login_se_nao_estiver_autenticado(self):
@@ -228,3 +240,7 @@ class EmpresaTeste(TestCase):
     def teste_empresa_retorna_404_se_nao_existir(self):
         resposta = self.client.get(reverse('empresa', args=[0]), follow=True)
         self.assertEqual(resposta.status_code, 404)
+
+    def teste_empresa_view_retorna_status_code_200(self):
+        resposta = self.client.get(reverse('empresa', args=[1]))
+        self.assertEqual(resposta.status_code, 200)

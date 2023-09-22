@@ -17,7 +17,7 @@ class Empresa(models.Model):
     )
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    logo = models.ImageField(upload_to='logo_empresa', null=True)
+    logo = models.ImageField(upload_to='logo_empresa', null=True, blank=True)
     nome = models.CharField(max_length=30)
     email = models.EmailField()
     cidade = models.CharField(max_length=30)
