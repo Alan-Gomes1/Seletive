@@ -244,3 +244,7 @@ class EmpresaTeste(TestCase):
     def teste_empresa_view_retorna_status_code_200(self):
         resposta = self.client.get(reverse('empresa', args=[1]))
         self.assertEqual(resposta.status_code, 200)
+
+    def teste_empresa_view_carrega_template_empresa(self):
+        resposta = self.client.get(reverse('empresa', args=[1]))
+        self.assertTemplateUsed(resposta, 'empresa.html')
