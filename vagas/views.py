@@ -46,7 +46,7 @@ class NovaVaga(BaseView):
 
 class Vaga(BaseView):
     def get(self, request, id):
-        vaga = Vagas.objects.filter(id=id, usuario=request.user)
+        vaga = Vagas.objects.filter(id=id, usuario=request.user).first()
         tarefas = Tarefas.objects.filter(vaga=vaga)
         emails = Emails.objects.filter(vaga=vaga)
         return render(
