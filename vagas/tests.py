@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.core.exceptions import ValidationError
+from django.urls import reverse
 from empresa.models import Empresa, Tecnologias, Vagas
 
 
@@ -10,35 +10,32 @@ class NovaVagaTeste(TestCase):
             username='teste',
             password='1234Abcd!'
         )
+
         self.empresa = Empresa.objects.create(
             usuario=self.user,
             nome='Minha Empresa',
         )
+
         self.tecnologia = Tecnologias.objects.create(
             tecnologia='Python'
         )
-        self.client.login(username='teste', password='1234Abcd!')
-        self.vaga = Vagas.objects.create(
-            usuario=self.user,
-            empresa=self.empresa,
-            titulo='Vaga de teste',
-            nivel_experiencia='P',
-            data_final='2024-01-01',
-            email='teste@email.com',
-            status='C',
-        )
-        self.vaga.tecnologias_dominadas.add(self.tecnologia)
 
-    def teste_nova_vaga_cadastrada_com_sucesso(self):
-        valores = {
+        self.client.login(username='teste', password='1234Abcd!')
+        self.valores = {
+            'usuario': self.user,
             'titulo': 'Vaga de teste',
             'nivel_experiencia': 'P',
             'data_final': '2024-01-01',
             'email': 'teste@email.com',
             'status': 'C',
         }
+        self.valores['empresa'] = self.empresa
 
-        for campo, valor in valores.items():
+        self.vaga = Vagas.objects.create(**self.valores)
+        self.vaga.tecnologias_dominadas.add(self.tecnologia)
+
+    def teste_nova_vaga_cadastrada_com_sucesso(self):
+        for campo, valor in self.valores.items():
             with self.subTest(campo=campo):
                 self.assertEqual(getattr(self.vaga, campo), valor)
 
