@@ -5,9 +5,11 @@ from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+
 from empresa.models import Vagas
-from .models import Emails, Tarefas
 from empresa.views import BaseView
+
+from .models import Emails, Tarefas
 
 
 class NovaVaga(BaseView):

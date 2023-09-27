@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+
 from empresa.models import Empresa, Tecnologias, Vagas
 
 
@@ -54,3 +55,7 @@ class NovaVagaTeste(TestCase):
         for campo, valor in valores.items():
             with self.subTest(campo=campo):
                 self.assertNotEqual(getattr(self.vaga, campo), valor)
+
+    def teste_nova_nao_aceita_requisicao_get(self):
+        response = self.client.get(reverse('nova_vaga'))
+        self.assertEqual(response.status_code, 405)
