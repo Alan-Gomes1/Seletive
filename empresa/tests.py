@@ -217,7 +217,6 @@ class EmpresaTeste(TestCase):
             tecnologia='Python'
         )
 
-        # Crie um arquivo de imagem de teste
         self.image = SimpleUploadedFile(
             "test_image.jpg", b"file_content", content_type="image/jpeg"
         )

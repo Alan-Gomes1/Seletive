@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -12,9 +13,18 @@ class NovaVagaTeste(TestCase):
             password='1234Abcd!'
         )
 
+        self.image = SimpleUploadedFile(
+            "test_image.jpg", b"file_content", content_type="image/jpeg"
+        )
         self.empresa = Empresa.objects.create(
-            usuario=self.user,
             nome='Minha Empresa',
+            logo=self.image,
+            usuario=self.user,
+            email='empresa@teste.com',
+            cidade='Minha Cidade',
+            endereco='Rua da Empresa',
+            caracteristica_empresa='Descrição da Empresa',
+            nicho_mercado='T',
         )
 
         self.tecnologia = Tecnologias.objects.create(
@@ -30,7 +40,7 @@ class NovaVagaTeste(TestCase):
             'email': 'teste@email.com',
             'status': 'C',
         }
-        self.valores['empresa'] = self.empresa
+        self.valores['empresa'] = Empresa.objects.get(id=self.empresa.id)
 
         self.vaga = Vagas.objects.create(**self.valores)
         self.vaga.tecnologias_dominadas.add(self.tecnologia)
@@ -56,6 +66,22 @@ class NovaVagaTeste(TestCase):
             with self.subTest(campo=campo):
                 self.assertNotEqual(getattr(self.vaga, campo), valor)
 
-    def teste_nova_nao_aceita_requisicao_get(self):
+    def teste_nova_vaga_nao_aceita_requisicao_get(self):
         response = self.client.get(reverse('nova_vaga'))
         self.assertEqual(response.status_code, 405)
+
+    def teste_nova_vaga_mensagem_de_sucesso(self):
+        valores = {
+            'titulo': 'Vaga de Teste',
+            'email': 'test@example.com',
+            'experiencia': 'P',
+            'data_final': '2023-12-31',
+            'empresa': self.empresa.id,
+            'status': 'C',
+        }
+        self.vaga.tecnologias_dominadas.add(self.tecnologia)
+        response = self.client.post(
+            reverse('nova_vaga'), data=valores, follow=True
+        )
+        mensagem = list(response.wsgi_request._messages)
+        self.assertEqual(mensagem[0].message, 'Vaga criada com sucesso.')
