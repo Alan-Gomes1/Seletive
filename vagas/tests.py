@@ -85,3 +85,18 @@ class NovaVagaTeste(TestCase):
         )
         mensagem = list(response.wsgi_request._messages)
         self.assertEqual(mensagem[0].message, 'Vaga criada com sucesso.')
+
+    def teste_nova_vaga_retorna_status_code_200(self):
+        valores = {
+            'titulo': 'Vaga de Teste',
+            'email': 'test@example.com',
+            'experiencia': 'P',
+            'data_final': '2023-12-31',
+            'empresa': self.empresa.id,
+            'status': 'C',
+        }
+        self.vaga.tecnologias_dominadas.add(self.tecnologia)
+        response = self.client.post(
+            reverse('nova_vaga'), data=valores, follow=True
+        )
+        self.assertEqual(response.status_code, 200)
