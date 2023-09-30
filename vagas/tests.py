@@ -100,3 +100,10 @@ class NovaVagaTeste(TestCase):
             reverse('nova_vaga'), data=valores, follow=True
         )
         self.assertEqual(response.status_code, 200)
+
+    def teste_NovaVaga_redireciona_para_login_se_nao_estiver_autenticado(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse('nova_vaga'), data=self.valores, follow=True
+        )
+        self.assertTemplateUsed(response, 'login_e_cadastro.html')
