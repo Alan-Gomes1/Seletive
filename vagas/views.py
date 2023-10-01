@@ -24,7 +24,12 @@ class NovaVaga(BaseView):
         empresa = request.POST.get('empresa')
         status = request.POST.get('status')
 
-        # TODO: validations
+        if len(titulo.strip()) < 5:
+            messages.add_message(
+                request, constants.ERROR,
+                'Preencha todos os campos corretamente'
+            )
+            return redirect(f'/empresa/{empresa}')
 
         vaga = Vagas(
             usuario=usuario,
