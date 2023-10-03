@@ -24,7 +24,8 @@ class NovaVaga(BaseView):
         empresa = request.POST.get('empresa')
         status = request.POST.get('status')
 
-        if len(titulo.strip()) < 5 or len(email.strip()) < 5:
+        if (len(titulo.strip()) < 5 or len(email.strip()) < 5 or
+                len(experiencia.strip()) < 5):
             messages.add_message(
                 request, constants.ERROR,
                 'Preencha todos os campos corretamente'
