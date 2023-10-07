@@ -26,7 +26,7 @@ class NovaVaga(BaseView):
 
         if (len(titulo.strip()) < 5 or len(email.strip()) < 5 or
                 len(experiencia.strip()) < 1 or len(empresa.strip()) < 1 or
-                len(status.strip()) < 1):
+                len(status.strip()) < 1 or len(data_final.strip()) < 5):
             messages.add_message(
                 request, constants.ERROR,
                 'Preencha todos os campos corretamente'
