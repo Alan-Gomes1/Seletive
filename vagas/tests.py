@@ -107,3 +107,43 @@ class NovaVagaTeste(TestCase):
             reverse('nova_vaga'), data=self.valores, follow=True
         )
         self.assertTemplateUsed(response, 'login_e_cadastro.html')
+
+
+class VagaTeste(TestCase):
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            username='teste',
+            password='1234Abcd!'
+        )
+
+        self.image = SimpleUploadedFile(
+            "test_image.jpg", b"file_content", content_type="image/jpeg"
+        )
+        self.empresa = Empresa.objects.create(
+            nome='Minha Empresa',
+            logo=self.image,
+            usuario=self.user,
+            email='empresa@teste.com',
+            cidade='Minha Cidade',
+            endereco='Rua da Empresa',
+            caracteristica_empresa='Descrição da Empresa',
+            nicho_mercado='T',
+        )
+
+        self.tecnologia = Tecnologias.objects.create(
+            tecnologia='Python'
+        )
+
+        self.client.login(username='teste', password='1234Abcd!')
+        self.valores = {
+            'usuario': self.user,
+            'titulo': 'Vaga de teste',
+            'nivel_experiencia': 'P',
+            'data_final': '2024-01-01',
+            'email': 'teste@email.com',
+            'status': 'C',
+        }
+        self.valores['empresa'] = Empresa.objects.get(id=self.empresa.id)
+
+        self.vaga = Vagas.objects.create(**self.valores)
+        self.vaga.tecnologias_dominadas.add(self.tecnologia)
