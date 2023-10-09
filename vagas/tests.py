@@ -147,3 +147,7 @@ class VagaTeste(TestCase):
 
         self.vaga = Vagas.objects.create(**self.valores)
         self.vaga.tecnologias_dominadas.add(self.tecnologia)
+
+    def teste_vaga_retorna_status_code_200(self):
+        response = self.client.get(reverse('vaga', args=[self.vaga.id]))
+        self.assertEqual(response.status_code, 200)
