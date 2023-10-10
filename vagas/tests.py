@@ -151,3 +151,7 @@ class VagaTeste(TestCase):
     def teste_vaga_retorna_status_code_200(self):
         response = self.client.get(reverse('vaga', args=[self.vaga.id]))
         self.assertEqual(response.status_code, 200)
+
+    def teste_vaga_nao_aceita_requisicao_post(self):
+        response = self.client.post(reverse('vaga', args=[self.vaga.id]))
+        self.assertEqual(response.status_code, 405)
