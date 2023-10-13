@@ -155,3 +155,10 @@ class VagaTeste(TestCase):
     def teste_vaga_nao_aceita_requisicao_post(self):
         response = self.client.post(reverse('vaga', args=[self.vaga.id]))
         self.assertEqual(response.status_code, 405)
+
+    def teste_vaga_redireciona_para_login_se_nao_estiver_autenticado(self):
+        self.client.logout()
+        response = self.client.get(
+            reverse('vaga', args=[self.vaga.id]), follow=True
+        )
+        self.assertTemplateUsed(response, 'login_e_cadastro.html')
