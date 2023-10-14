@@ -162,3 +162,9 @@ class VagaTeste(TestCase):
             reverse('vaga', args=[self.vaga.id]), follow=True
         )
         self.assertTemplateUsed(response, 'login_e_cadastro.html')
+
+    def teste_vaga_view_carrega_template_vaga(self):
+        response = self.client.get(
+            reverse('vaga', args=[self.vaga.id]), follow=True
+        )
+        self.assertTemplateUsed(response, 'vaga.html')
