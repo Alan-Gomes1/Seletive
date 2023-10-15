@@ -58,10 +58,11 @@ class Vaga(BaseView):
         vaga = Vagas.objects.filter(id=id, usuario=request.user).first()
         tarefas = Tarefas.objects.filter(vaga=vaga)
         emails = Emails.objects.filter(vaga=vaga)
-        return render(
-            request, 'vaga.html',
-            {'vaga': vaga, 'tarefas': tarefas, 'emails': emails}
-        )
+        if vaga:
+            return render(
+                request, 'vaga.html',
+                {'vaga': vaga, 'tarefas': tarefas, 'emails': emails}
+            )
 
 
 class NovaTarefa(BaseView):
