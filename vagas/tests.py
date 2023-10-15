@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from empresa.models import Empresa, Tecnologias, Vagas
 
+from .models import Tarefas
+
 
 class NovaVagaTeste(TestCase):
     def setUp(self) -> None:
@@ -168,3 +170,15 @@ class VagaTeste(TestCase):
             reverse('vaga', args=[self.vaga.id]), follow=True
         )
         self.assertTemplateUsed(response, 'vaga.html')
+
+    def teste_vaga_com_tarefa(self):
+        tarefa = Tarefas.objects.create(
+            vaga=self.vaga,
+            titulo='Tarefa de teste',
+            prioridade='U',
+            data='2023-01-01',
+        )
+        response = self.client.get(
+            reverse('vaga', args=[self.vaga.id]), follow=True
+        )
+        self.assertEqual(response.context['tarefas'][0], tarefa)
