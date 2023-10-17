@@ -63,6 +63,10 @@ class Vaga(BaseView):
                 request, 'vaga.html',
                 {'vaga': vaga, 'tarefas': tarefas, 'emails': emails}
             )
+        messages.add_message(
+            request, constants.ERROR, 'Vaga não encontrada.'
+        )
+        return redirect('/empresas')
 
 
 class NovaTarefa(BaseView):
