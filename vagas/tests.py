@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from empresa.models import Empresa, Tecnologias, Vagas
 
-from .models import Tarefas
+from .models import Emails, Tarefas
 
 
 class NovaVagaTeste(TestCase):
@@ -182,3 +182,15 @@ class VagaTeste(TestCase):
             reverse('vaga', args=[self.vaga.id]), follow=True
         )
         self.assertEqual(response.context['tarefas'][0], tarefa)
+
+    def teste_vaga_com_email(self):
+        email = Emails.objects.create(
+            vaga=self.vaga,
+            assunto='Assunto de teste',
+            corpo='Corpo de teste',
+            enviado=True,
+        )
+        response = self.client.get(
+            reverse('vaga', args=[self.vaga.id]), follow=True
+        )
+        self.assertEqual(response.context['emails'][0], email)
