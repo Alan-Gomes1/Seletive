@@ -194,3 +194,10 @@ class VagaTeste(TestCase):
             reverse('vaga', args=[self.vaga.id]), follow=True
         )
         self.assertEqual(response.context['emails'][0], email)
+
+    def teste_vaga_nao_existe(self):
+        response = self.client.get(
+            reverse('vaga', args=[self.vaga.id + 1]), follow=True
+        )
+        mensagem = list(response.wsgi_request._messages)
+        self.assertEqual(mensagem[0].message, 'Vaga não encontrada.')
