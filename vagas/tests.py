@@ -74,14 +74,14 @@ class NovaVagaTeste(TestCase):
 
     def teste_nova_vaga_mensagem_de_sucesso(self):
         valores = {
-            'titulo': 'Vaga de Teste',
-            'email': 'test@example.com',
-            'experiencia': 'P',
-            'data_final': '2023-12-31',
-            'empresa': self.empresa.id,
-            'status': 'C',
+            "titulo": "Vaga de Teste",
+            "email": "test@example.com",
+            "nivel_experiencia": "P",
+            "data_final": "2023-12-31",
+            "empresa": self.empresa.id,
+            "status": "C",
         }
-        self.vaga.tecnologias_dominadas.add(self.tecnologia)
+        valores["tecnologias_dominadas"] = [self.tecnologia.id]
         response = self.client.post(
             reverse('nova_vaga'), data=valores, follow=True
         )
@@ -201,3 +201,157 @@ class VagaTeste(TestCase):
         )
         mensagem = list(response.wsgi_request._messages)
         self.assertEqual(mensagem[0].message, 'Vaga não encontrada.')
+
+
+class NovaTarefaTeste(TestCase):
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            username='teste',
+            password='1234Abcd!'
+        )
+
+        self.image = SimpleUploadedFile(
+            "test_image.jpg", b"file_content", content_type="image/jpeg"
+        )
+        self.empresa = Empresa.objects.create(
+            nome='Minha Empresa',
+            logo=self.image,
+            usuario=self.user,
+            email='empresa@teste.com',
+            cidade='Minha Cidade',
+            endereco='Rua da Empresa',
+            caracteristica_empresa='Descrição da Empresa',
+            nicho_mercado='T',
+        )
+
+        self.client.login(username='teste', password='1234Abcd!')
+        self.valores = {
+            'usuario': self.user,
+            'titulo': 'Vaga de teste',
+            'nivel_experiencia': 'P',
+            'data_final': '2024-01-01',
+            'email': 'teste@email.com',
+            'status': 'C',
+        }
+        self.valores['empresa'] = Empresa.objects.get(id=self.empresa.id)
+
+        self.vaga = Vagas.objects.create(**self.valores)
+
+    def teste_nova_tarefa_creates_task_with_valid_data(self):
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'A',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(message.message, "Tarefa criada com sucesso.")
+
+    def teste_nova_tarefa_invalid_title(self):
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Ab',
+                'prioridade': 'A',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(
+            message.message,
+            'Título must be at least 5 characters.'
+        )
+
+    def teste_nova_tarefa_invalid_prioridade(self):
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'X',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(message.message, 'Invalid priority level.')
+
+    def teste_nova_tarefa_empty_data(self):
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'A',
+                'data': '',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(message.message, 'Data field is required.')
+
+    def teste_nova_tarefa_nonexistent_vaga(self):
+        response = self.client.post(
+            reverse('nova_tarefa', args=[9999]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'A',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(
+            message.message,
+            'Vaga not found or does not belong to you.'
+        )
+
+    def teste_nova_tarefa_vaga_belongs_to_different_user(self):
+        User.objects.create_user(
+            username='other',
+            password='1234Abcd!'
+        )
+        self.client.logout()
+        self.client.login(username='other', password='1234Abcd!')
+
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'A',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        message = list(response.wsgi_request._messages)[-1]
+        self.assertEqual(
+            message.message,
+            'Vaga not found or does not belong to you.'
+        )
+
+    def teste_nova_tarefa_rejects_get_request(self):
+        response = self.client.get(
+            reverse('nova_tarefa', args=[self.vaga.id])
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def teste_nova_tarefa_requires_authentication(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse('nova_tarefa', args=[self.vaga.id]),
+            data={
+                'titulo': 'Valid task title',
+                'prioridade': 'A',
+                'data': '2023-12-30',
+            },
+            follow=True,
+        )
+        self.assertTemplateUsed(response, 'login_e_cadastro.html')
