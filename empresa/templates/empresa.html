@@ -128,7 +128,7 @@
                     <div class="row">
                         <div class="col-md">
                             <label>Tecnologias que já domino:</label>
-                            <select name="tecnologias_domina" class="form-select" multiple>
+                            <select name="tecnologias_dominadas" class="form-select" multiple>
                                 {% for tech in tecnologias %}
                                     <option value="{{tech.id}}">{{tech}}</option>
                                 {% endfor %}
@@ -138,7 +138,7 @@
 
                         <div class="col-md">
                             <label>Tecnologias que não domino:</label>
-                            <select name="tecnologias_nao_domina" class="form-select" multiple>
+                            <select name="tecnologias_estudar" class="form-select" multiple>
                                 {% for tech in tecnologias %}
                                     <option value="{{tech.id}}">{{tech}}</option>
                                 {% endfor %}
@@ -151,7 +151,7 @@
                     <div class="row">
                         <div class="col-md">
                             <label>Nível de experiência:</label>
-                            <select name="experiencia" class="form-select">
+                            <select name="nivel_experiencia" class="form-select">
                                 <option value="J">Júnior</option>
                                 <option value="P">Pleno</option>
                                 <option value="S">Sênior</option>
