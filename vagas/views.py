@@ -9,48 +9,29 @@ from django.utils.html import strip_tags
 from empresa.models import Vagas
 from empresa.views import BaseView
 
+from .forms import VagaForm
 from .models import Emails, Tarefas
 
 
 class NovaVaga(BaseView):
     def post(self, request):
-        usuario = request.user
-        titulo = request.POST.get('titulo')
-        email = request.POST.get('email')
-        tecnologias_domina = request.POST.getlist('tecnologias_domina')
-        tecnologias_nao_domina = request.POST.getlist('tecnologias_nao_domina')
-        experiencia = request.POST.get('experiencia')
-        data_final = request.POST.get('data_final')
-        empresa = request.POST.get('empresa')
-        status = request.POST.get('status')
-
-        if (len(titulo.strip()) < 5 or len(email.strip()) < 5 or
-                len(experiencia.strip()) < 1 or len(empresa.strip()) < 1 or
-                len(status.strip()) < 1 or len(data_final.strip()) < 5):
+        form = VagaForm(request.POST)
+        if not form.is_valid():
             messages.add_message(
                 request, constants.ERROR,
                 'Preencha todos os campos corretamente'
             )
-            return redirect(f'/empresa/{empresa}')
+            return redirect(f'/empresa/{request.POST.get("empresa")}')
 
-        vaga = Vagas(
-            usuario=usuario,
-            titulo=titulo,
-            email=email,
-            nivel_experiencia=experiencia,
-            data_final=data_final,
-            empresa_id=empresa,
-            status=status,
-        )
+        vaga = form.save(commit=False)
+        vaga.usuario = request.user
         vaga.save()
+        form.save_m2m()
 
-        vaga.tecnologias_estudar.add(*tecnologias_nao_domina)
-        vaga.tecnologias_dominadas.add(*tecnologias_domina)
-        vaga.save()
         messages.add_message(
             request, constants.SUCCESS, 'Vaga criada com sucesso.'
         )
-        return redirect(f'/empresa/{empresa}')
+        return redirect(f'/empresa/{vaga.empresa_id}')
 
 
 class Vaga(BaseView):
