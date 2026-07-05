@@ -56,7 +56,36 @@ class NovaTarefa(BaseView):
         prioridade = request.POST.get('prioridade')
         data = request.POST.get('data')
 
-        # TODO: validations
+        if len(titulo.strip()) < 5:
+            messages.add_message(
+                request, constants.ERROR,
+                'Título must be at least 5 characters.'
+            )
+            return redirect(f'/vagas/vaga/{id_vaga}')
+
+        valid_priorities = ['A', 'B', 'U']
+        if prioridade not in valid_priorities:
+            messages.add_message(
+                request, constants.ERROR,
+                'Invalid priority level.'
+            )
+            return redirect(f'/vagas/vaga/{id_vaga}')
+
+        if not data or len(data.strip()) < 1:
+            messages.add_message(
+                request, constants.ERROR,
+                'Data field is required.'
+            )
+            return redirect(f'/vagas/vaga/{id_vaga}')
+
+        try:
+            Vagas.objects.get(id=id_vaga, usuario=request.user)
+        except Vagas.DoesNotExist:
+            messages.add_message(
+                request, constants.ERROR,
+                'Vaga not found or does not belong to you.'
+            )
+            return redirect('/empresas')
 
         tarefa = Tarefas(
             titulo=titulo,
