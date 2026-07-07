@@ -1,12 +1,14 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from empresa.models import Vagas
+from empresa.models import Vagas, Tecnologias
+from vagas.models import Tarefas
 
 
 class VagaForm(forms.ModelForm):
-    tecnologias_estudar = forms.CharField(
+    tecnologias_estudar = forms.ModelMultipleChoiceField(
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": "Tecnologias a estudar"}),
+        queryset=Tecnologias.objects.all(),
+        widget=forms.CheckboxInput,
     )
 
     class Meta:
@@ -70,7 +72,7 @@ class VagaForm(forms.ModelForm):
             raise ValidationError("Experience level is required.")
         return experience
 
-    def clean_empresa(self):
+    def clean_empresa(self) -> str:
         """
         Valida que a empresa foi selecionada.
 
