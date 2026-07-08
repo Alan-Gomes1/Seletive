@@ -117,3 +117,60 @@ class VagaForm(forms.ModelForm):
         if not data_final:
             raise ValidationError("Data final is required.")
         return data_final
+
+
+class TarefasForm(forms.ModelForm):
+    class Meta:
+        model = Tarefas
+        fields = ["titulo", "prioridade", "data"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"placeholder": "Task title"}),
+            "data": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def clean_titulo(self) -> str:
+        """
+        Validate the task title to ensure it has at least 5 characters.
+
+        Raises:
+            ValidationError: Title must be at least 5 characters.
+
+        Returns:
+            str: The validated task title.
+        """
+        title = self.cleaned_data["titulo"]
+        if len(title.strip()) < 5:
+            raise ValidationError("Title must be at least 5 characters.")
+        return title
+
+    def clean_prioridade(self) -> str:
+        """
+        Validate the priority level to ensure it has exactly 1 character.
+
+        Raises:
+            ValidationError: Priority is required and must be A, B, or U.
+
+        Returns:
+            str: The validated priority (A, B, or U).
+        """
+        prioridade = self.cleaned_data["prioridade"]
+        if len(prioridade.strip()) != 1:
+            raise ValidationError(
+                "Priority is required and must be A, B, or U."
+            )
+        return prioridade
+
+    def clean_data(self):
+        """
+        Validate that a date was filled.
+
+        Raises:
+            ValidationError: Date is required.
+
+        Returns:
+            date: A validated date.
+        """
+        data = self.cleaned_data["data"]
+        if not data:
+            raise ValidationError("Date is required.")
+        return data
