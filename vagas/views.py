@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 from empresa.models import Vagas
 from empresa.views import BaseView
 
-from .forms import VagaForm
+from .forms import TarefasForm, VagaForm
 from .models import Emails, Tarefas
 
 
@@ -52,48 +52,35 @@ class Vaga(BaseView):
 
 class NovaTarefa(BaseView):
     def post(self, request, id_vaga):
-        titulo = request.POST.get('titulo')
-        prioridade = request.POST.get('prioridade')
-        data = request.POST.get('data')
-
-        if len(titulo.strip()) < 5:
-            messages.add_message(
-                request, constants.ERROR,
-                'Título must be at least 5 characters.'
-            )
-            return redirect(f'/vagas/vaga/{id_vaga}')
-
-        valid_priorities = ['A', 'B', 'U']
-        if prioridade not in valid_priorities:
-            messages.add_message(
-                request, constants.ERROR,
-                'Invalid priority level.'
-            )
-            return redirect(f'/vagas/vaga/{id_vaga}')
-
-        if not data or len(data.strip()) < 1:
-            messages.add_message(
-                request, constants.ERROR,
-                'Data field is required.'
-            )
-            return redirect(f'/vagas/vaga/{id_vaga}')
-
-        try:
-            Vagas.objects.get(id=id_vaga, usuario=request.user)
-        except Vagas.DoesNotExist:
+        vaga = Vagas.objects.filter(id=id_vaga, usuario=request.user).first()
+        if not vaga:
             messages.add_message(
                 request, constants.ERROR,
                 'Vaga not found or does not belong to you.'
             )
             return redirect('/empresas')
 
-        tarefa = Tarefas(
-            titulo=titulo,
-            prioridade=prioridade,
-            data=data,
-            vaga_id=id_vaga
-        )
+        form = TarefasForm(request.POST)
+        if not form.is_valid():
+            field = next(iter(form.errors))
+            error_map = {
+                'titulo': 'Título must be at least 5 characters.',
+                'prioridade': 'Invalid priority level.',
+                'data': 'Data field is required.',
+            }
+            message_text = error_map.get(field, form.errors[field][0])
+
+            messages.add_message(
+                request, constants.ERROR,
+                message_text
+            )
+            return redirect(f'/vagas/vaga/{id_vaga}')
+
+        tarefa = form.save(commit=False)
+        tarefa.vaga_id = id_vaga
         tarefa.save()
+        form.save_m2m()
+
         messages.add_message(
             request, constants.SUCCESS, 'Tarefa criada com sucesso.'
         )
